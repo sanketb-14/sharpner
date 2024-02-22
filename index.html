@@ -2,34 +2,104 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>User Details Form</title>
   </head>
-  <body style="margin: 0">
-    <div id="header" style="padding: 1rem 0; background-color: lightblue">
-      <h1 id="main-heading" style="margin: 0">Fruit Shop</h1>
-    </div>
-    <div>
-      <h2 id="basket-heading">Fruits In Basket</h2>
-      <ul class="fruits">
-        <li class="fruit">Banana</li>
-        <li class="fruit">Apple</li>
-        <li class="fruit">Orange</li>
-        <li class="fruit">Kiwi</li>
-        <li>Mango</li>
-      </ul>
-    </div>
-    <div id="thanks"></div>
-  </body>
-  <script>
-    const fruit = document.getElementsByTagName("li")
-    for(let i = 0 ; i < fruit.length ; i++){
-      if(fruit[i].textContent ==='Mango'){
-        fruit[i].style.color = "blue"
-        
+  <body>
+    <h1>User Details</h1>
+    <form id="user-form" onsubmit="handleFormSubmit(event)">
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div>
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone" required />
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+
+    <ul id="user-list"></ul>
+
+    <script>
+        function handleFormSubmit(event) {
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const phone = document.getElementById("phone").value;
+
+        const newUserDetails = {
+          username,
+          email,
+          phone,
+        };
+
+        users.push(newUserDetails);
+
+        localStorage.setItem("userDetails", JSON.stringify(users));
+
+        const newListItem = createUserListItem(newUserDetails);
+        userList.appendChild(newListItem);
+
+        form.reset();
+
+        alert("User details stored successfully!");
       }
-      fruit[i].style.fontStyle ="italic"
-    }
-  </script>
+      const form = document.getElementById("user-form");
+      const userList = document.getElementById("user-list");
+
+      function createUserListItem(user) {
+        const listItem = document.createElement("li");
+        listItem.textContent = `Username: ${user.username}, Email: ${user.email}, Phone: ${user.phone}`;
+        const dltBtn = document.createElement("button");
+        dltBtn.textContent = "Delete";
+        dltBtn.addEventListener("click", () => {
+          removeUser(user);
+        });
+        listItem.appendChild(dltBtn);
+        const editButton = document.createElement("button");
+        editButton.textContent = "edit";
+        editButton.addEventListener("click", () => {
+          editUser(user);
+        });
+        listItem.appendChild(editButton);
+        return listItem;
+      }
+
+      let users = JSON.parse(localStorage.getItem("userDetails")) || [];
+      if (!Array.isArray(users)) {
+        console.error("Error parsing local storage:");
+        users = []; //
+      }
+
+      users.forEach((user) => {
+        userList.appendChild(createUserListItem(user));
+      });
+
+    
+      function removeUser(user) {
+        const userIndex = users.findIndex(
+          (item) => item.username === user.username
+        );
+        if (userIndex !== -1) {
+          users.splice(userIndex, 1);
+          userList.removeChild(userList.children[userIndex]);
+          localStorage.setItem("userDetails", JSON.stringify(users));
+        } else {
+          console.error("user not found");
+        }
+      }
+      function editUser(user) {
+        document.getElementById("username").value = user.username;
+        document.getElementById("email").value = user.email;
+        document.getElementById("phone").value = user.phone;
+        removeUser(user);
+      }
+    </script>
+  </body>
 </html>
